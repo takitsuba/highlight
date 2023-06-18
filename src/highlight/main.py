@@ -7,10 +7,10 @@ search_term = "First"
 for current_page in range(len(doc)):
     page = doc.load_page(current_page)
     if page.search_for(search_term):
-        text_instances = page.search_for(search_term)
-
-        for inst in text_instances:
-            highlight = page.add_highlight_annot(inst)
-            highlight.update()
+        # use quads because developers strongly recommend
+        # ref. https://pymupdf.readthedocs.io/en/latest/page.html#Page.add_highlight_annot
+        text_quads = page.search_for(search_term, quads=True)
+        highlight = page.add_highlight_annot(text_quads)
+        highlight.update()
 
 doc.save("data/output/highlighted.pdf", garbage=4, deflate=True)
