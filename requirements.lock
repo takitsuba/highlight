@@ -7,3 +7,4 @@
 #   all-features: false
 
 -e file:.
+pymupdf==1.22.3

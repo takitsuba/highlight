@@ -5,7 +5,9 @@ description = "Add a short description here"
 authors = [
     { name = "Hiroo Takizawa", email = "kei.cataract@gmail.com" }
 ]
-dependencies = []
+dependencies = [
+    "pymupdf~=1.22.3",
+]
 readme = "README.md"
 requires-python = ">= 3.8"
 
