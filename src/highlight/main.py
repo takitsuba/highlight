@@ -7,7 +7,6 @@ def main():
     doc = fitz.open(file)
     search_term = "Human"
 
-
     for current_page in range(len(doc)):
         page = doc.load_page(current_page)
         if page.search_for(search_term):
