@@ -7,6 +7,8 @@ authors = [
 ]
 dependencies = [
     "pymupdf~=1.22.3",
+    "isort~=5.12.0",
+    "black[d]~=23.3.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
@@ -14,6 +16,22 @@ requires-python = ">= 3.8"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.black]
+line-length = 79
+
+[tool.isort]
+profile = "black"
+line_length = 79
+# 各ライブラリ群の説明を追記する
+import_heading_stdlib = "Standard Library"
+import_heading_thirdparty = "Third Party Library"
+import_heading_firstparty = "First Party Library"
+import_heading_localfolder = "Local Library"
+# from third_party import lib1, lib2...のような記述時の改行方法の設定(https://pycqa.github.io/isort/docs/configuration/multi_line_output_modes.html)
+multi_line_output = 3
+# 最後の要素の末尾に","を付けるようにする設定
+include_trailing_comma = true
 
 [tool.rye]
 managed = true
