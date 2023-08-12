@@ -1,13 +1,20 @@
+import argparse
 import os
 import fitz
 from fitz.utils import getColor
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-data_dir = os.path.join(current_dir, '..', "..", "data")
+data_dir = os.path.join(current_dir, "..", "..", "data")
+
 
 def main():
-    input_path = os.path.join(data_dir, "input", 'Can Large Language Models Be an Alternative to Human Evaluations?.pdf')
-    doc = fitz.open(input_path)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "input_pdf", help="the path of input pdf", required=True
+    )
+    args = parser.parse_args()
+
+    doc = fitz.open(args.input_pdf)
 
     search_term = "Human"
 
