@@ -15,6 +15,8 @@ def get_color_words():
         "color1": ["word1", "word2"],
         "color2": ["word3"],
     }
+
+    Colors list is in `scripts/`
     """
     color_words_path = os.path.join(
         current_dir, "..", "..", "color_words.json"
@@ -44,7 +46,7 @@ def main():
                     # ref. https://pymupdf.readthedocs.io/en/latest/page.html#Page.add_highlight_annot
                     text_quads = page.search_for(word, quads=True)
                     highlight = page.add_highlight_annot(text_quads)
-                    rgb = getColor(color)
+                    rgb = getColor(color.upper())
                     highlight.set_colors(stroke=rgb)
                     highlight.update()
 
