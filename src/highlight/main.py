@@ -39,6 +39,10 @@ def main():
 
     for color, targets in color_words.items():
         for target in targets:
+            # target: "On the contrary"
+            # target_words: ["On", "the", "contrary"]
+            target_words = target.split(" ")
+
             for current_page in range(len(doc)):
                 page = doc.load_page(current_page)
                 word_locs = page.get_text("words")
@@ -46,11 +50,16 @@ def main():
                 # Format of a word_loc: (x0, y0, x1, y1, "word", block_no, line_no, word_no)
                 # ref. https://pymupdf.readthedocs.io/en/latest/textpage.html#TextPage.extractWORDS
                 word_idx = 4
-                filtered_locs = [
-                    word_loc[:word_idx]  # loc
-                    for word_loc in word_locs
-                    if word_loc[word_idx] == target  # filter by word
-                ]
+                filtered_locs = []
+                for start in range(len(word_locs) - len(target_words) + 1):
+                    for i in range(len(target_words)):
+                        idx = start + i
+                        if word_locs[idx][word_idx] != target_words[i]:
+                            break
+                    else:
+                        # when not break
+                        for fidx in range(start, start + len(target_words)):
+                            filtered_locs.append(word_locs[fidx][:word_idx])
 
                 highlight = page.add_highlight_annot(filtered_locs)
                 rgb = getColor(color.upper())
