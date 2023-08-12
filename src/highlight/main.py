@@ -37,18 +37,25 @@ def main():
 
     color_words = get_color_words()
 
-    for color, words in color_words.items():
-        for word in words:
+    for color, targets in color_words.items():
+        for target in targets:
             for current_page in range(len(doc)):
                 page = doc.load_page(current_page)
-                if page.search_for(word):
-                    # use quads because developers strongly recommend
-                    # ref. https://pymupdf.readthedocs.io/en/latest/page.html#Page.add_highlight_annot
-                    text_quads = page.search_for(word, quads=True)
-                    highlight = page.add_highlight_annot(text_quads)
-                    rgb = getColor(color.upper())
-                    highlight.set_colors(stroke=rgb)
-                    highlight.update()
+                word_locs = page.get_text("words")
+
+                # Format of a word_loc: (x0, y0, x1, y1, "word", block_no, line_no, word_no)
+                # ref. https://pymupdf.readthedocs.io/en/latest/textpage.html#TextPage.extractWORDS
+                word_idx = 4
+                filtered_locs = [
+                    word_loc[:word_idx]  # loc
+                    for word_loc in word_locs
+                    if word_loc[word_idx] == target  # filter by word
+                ]
+
+                highlight = page.add_highlight_annot(filtered_locs)
+                rgb = getColor(color.upper())
+                highlight.set_colors(stroke=rgb)
+                highlight.update()
 
     output_pdf_filename = "hl_" + input_pdf_filename
     output_path = os.path.join(data_dir, "output", output_pdf_filename)
