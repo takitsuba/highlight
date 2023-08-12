@@ -9,12 +9,11 @@ data_dir = os.path.join(current_dir, "..", "..", "data")
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "input_pdf", help="the path of input pdf", required=True
-    )
+    parser.add_argument("input_pdf", help="the path of input pdf")
     args = parser.parse_args()
-
-    doc = fitz.open(args.input_pdf)
+    input_pdf_path = args.input_pdf
+    input_pdf_filename = os.path.basename(input_pdf_path)
+    doc = fitz.open(input_pdf_path)
 
     search_term = "Human"
 
@@ -29,7 +28,8 @@ def main():
             highlight.set_colors(stroke=rgb)
             highlight.update()
 
-    output_path = os.path.join(data_dir, "output", "highlighted.pdf")
+    output_pdf_filename = "hl_" + input_pdf_filename
+    output_path = os.path.join(data_dir, "output", output_pdf_filename)
     doc.save(output_path, garbage=4, deflate=True)
 
 
