@@ -51,6 +51,13 @@ def extract_locs_by_phrase(page, phrase):
     return extracted_locs
 
 
+def highlight_in_color(page, locs, color: str):
+    highlight = page.add_highlight_annot(locs)
+    rgb = getColor(color.upper())
+    highlight.set_colors(stroke=rgb)
+    highlight.update()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input_pdf", help="the path of input pdf")
@@ -65,10 +72,7 @@ def main():
         for phrase in phrases:
             for page in doc:
                 extracted_locs = extract_locs_by_phrase(page, phrase)
-                highlight = page.add_highlight_annot(extracted_locs)
-                rgb = getColor(color.upper())
-                highlight.set_colors(stroke=rgb)
-                highlight.update()
+                highlight_in_color(page, extracted_locs, color)
 
     output_pdf_filename = "hl_" + input_pdf_filename
     output_path = os.path.join(data_dir, "output", output_pdf_filename)
