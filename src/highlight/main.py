@@ -43,8 +43,7 @@ def main():
             # target_words: ["On", "the", "contrary"]
             target_words = target.split(" ")
 
-            for current_page in range(len(doc)):
-                page = doc.load_page(current_page)
+            for page in doc:
                 word_locs = page.get_text("words")
 
                 # Format of a word_loc: (x0, y0, x1, y1, "word", block_no, line_no, word_no)
