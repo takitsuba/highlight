@@ -27,6 +27,30 @@ def get_color_phrases():
     return color_phrases
 
 
+def extract_locs_by_phrase(page, phrase):
+    # phrase: "On the contrary"
+    # words: ["On", "the", "contrary"]
+    words = phrase.split(" ")
+
+    word_locs = page.get_text("words")
+
+    # Format of a word_loc: (x0, y0, x1, y1, "word", block_no, line_no, word_no)
+    # ref. https://pymupdf.readthedocs.io/en/latest/textpage.html#TextPage.extractWORDS
+    word_idx = 4
+    extracted_locs = []
+    for start in range(len(word_locs) - len(words) + 1):
+        for i in range(len(words)):
+            idx = start + i
+            if word_locs[idx][word_idx] != words[i]:
+                break
+        else:
+            # when not break
+            for fidx in range(start, start + len(words)):
+                extracted_locs.append(word_locs[fidx][:word_idx])
+
+    return extracted_locs
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input_pdf", help="the path of input pdf")
@@ -39,28 +63,9 @@ def main():
 
     for color, phrases in color_phrases.items():
         for phrase in phrases:
-            # phrase: "On the contrary"
-            # words: ["On", "the", "contrary"]
-            words = phrase.split(" ")
-
             for page in doc:
-                word_locs = page.get_text("words")
-
-                # Format of a word_loc: (x0, y0, x1, y1, "word", block_no, line_no, word_no)
-                # ref. https://pymupdf.readthedocs.io/en/latest/textpage.html#TextPage.extractWORDS
-                word_idx = 4
-                filtered_locs = []
-                for start in range(len(word_locs) - len(words) + 1):
-                    for i in range(len(words)):
-                        idx = start + i
-                        if word_locs[idx][word_idx] != words[i]:
-                            break
-                    else:
-                        # when not break
-                        for fidx in range(start, start + len(words)):
-                            filtered_locs.append(word_locs[fidx][:word_idx])
-
-                highlight = page.add_highlight_annot(filtered_locs)
+                extracted_locs = extract_locs_by_phrase(page, phrase)
+                highlight = page.add_highlight_annot(extracted_locs)
                 rgb = getColor(color.upper())
                 highlight.set_colors(stroke=rgb)
                 highlight.update()
