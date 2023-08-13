@@ -8,23 +8,23 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 data_dir = os.path.join(current_dir, "..", "..", "data")
 
 
-def get_color_words():
+def get_color_phrases():
     """
-    color_words is Dict like
+    color_phrases is Dict like
     {
-        "color1": ["word1", "word2"],
-        "color2": ["word3"],
+        "color1": ["phrase1", "phrase2"],
+        "color2": ["phrase3"],
     }
 
     Colors list is in `scripts/`
     """
-    color_words_path = os.path.join(
-        current_dir, "..", "..", "color_words.json"
+    color_phrases_path = os.path.join(
+        current_dir, "..", "..", "color_phrases.json"
     )
-    with open(color_words_path, "r") as file:
-        color_words = json.load(file)
+    with open(color_phrases_path, "r") as file:
+        color_phrases = json.load(file)
 
-    return color_words
+    return color_phrases
 
 
 def main():
@@ -35,13 +35,13 @@ def main():
     input_pdf_filename = os.path.basename(input_pdf_path)
     doc = fitz.open(input_pdf_path)
 
-    color_words = get_color_words()
+    color_phrases = get_color_phrases()
 
-    for color, targets in color_words.items():
-        for target in targets:
-            # target: "On the contrary"
-            # target_words: ["On", "the", "contrary"]
-            target_words = target.split(" ")
+    for color, phrases in color_phrases.items():
+        for phrase in phrases:
+            # phrase: "On the contrary"
+            # words: ["On", "the", "contrary"]
+            words = phrase.split(" ")
 
             for page in doc:
                 word_locs = page.get_text("words")
@@ -50,14 +50,14 @@ def main():
                 # ref. https://pymupdf.readthedocs.io/en/latest/textpage.html#TextPage.extractWORDS
                 word_idx = 4
                 filtered_locs = []
-                for start in range(len(word_locs) - len(target_words) + 1):
-                    for i in range(len(target_words)):
+                for start in range(len(word_locs) - len(words) + 1):
+                    for i in range(len(words)):
                         idx = start + i
-                        if word_locs[idx][word_idx] != target_words[i]:
+                        if word_locs[idx][word_idx] != words[i]:
                             break
                     else:
                         # when not break
-                        for fidx in range(start, start + len(target_words)):
+                        for fidx in range(start, start + len(words)):
                             filtered_locs.append(word_locs[fidx][:word_idx])
 
                 highlight = page.add_highlight_annot(filtered_locs)
