@@ -74,8 +74,11 @@ def main():
                 extracted_locs = extract_locs_by_phrase(page, phrase)
                 highlight_in_color(page, extracted_locs, color)
 
+    output_dir = os.path.join(data_dir, "output")
+    os.makedirs(output_dir, exist_ok=True)
+
     output_pdf_filename = input_pdf_filename
-    output_path = os.path.join(data_dir, "output", output_pdf_filename)
+    output_path = os.path.join(output_dir, output_pdf_filename)
     doc.save(output_path, garbage=4, deflate=True)
 
 
