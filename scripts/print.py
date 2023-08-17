@@ -74,6 +74,6 @@ m = {
 
 doc.set_metadata(m)
 path = os.path.dirname(os.path.abspath(__file__))
-ofn = os.path.join(path, "output.pdf")
+ofn = os.path.join(path, "color_list.pdf")
 print("Writing:", ofn)
 doc.save(ofn, garbage=4, deflate=True, clean=True)
