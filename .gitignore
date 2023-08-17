@@ -12,3 +12,4 @@ wheels/
 .idea/
 .vscode/
 data/
+color_phrases.json
