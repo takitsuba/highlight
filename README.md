@@ -36,7 +36,7 @@ cp color_phrases.json.sample color_phrases.json
 
 5. Customize your color and phrases:
 
-You can customize the colors and phrases according to your preference. Please refer to the `scripts/color_list.pdf` for color options. 
+You can customize the colors and phrases according to your preference. Please refer to the [scripts/color_list.pdf](https://github.com/takitsuba/highlight/blob/main/scripts/color_list.pdf) for color options.
 
 
 ## Running Highlight
