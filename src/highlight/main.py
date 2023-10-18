@@ -3,6 +3,7 @@ import os
 import json
 import fitz
 from fitz.utils import getColor
+from tqdm import tqdm
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 data_dir = os.path.join(current_dir, "..", "..", "data")
@@ -68,8 +69,8 @@ def main():
 
     color_phrases = get_color_phrases()
 
-    for color, phrases in color_phrases.items():
-        for phrase in phrases:
+    for color, phrases in tqdm(color_phrases.items()):
+        for phrase in tqdm(phrases):
             for page in doc:
                 extracted_locs = extract_locs_by_phrase(page, phrase)
                 highlight_in_color(page, extracted_locs, color)
