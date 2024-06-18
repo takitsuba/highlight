@@ -83,7 +83,7 @@ def main():
 
     output_pdf_filename = input_pdf_filename
     output_path = os.path.join(output_dir, output_pdf_filename)
-    doc.save(output_path, garbage=4, deflate=True)
+    doc.save(output_path)
 
 
 if __name__ == "__main__":
