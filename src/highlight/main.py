@@ -1,6 +1,9 @@
+# Standard Library
 import argparse
-import os
 import json
+import os
+
+# Third Party Library
 import fitz
 from fitz.utils import getColor
 from tqdm import tqdm
