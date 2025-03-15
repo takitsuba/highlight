@@ -37,6 +37,10 @@ include_trailing_comma = true
 
 [tool.rye]
 managed = true
+dev-dependencies = [
+    "pytest~=8.3.5",
+    "pytest-cov~=5.0.0",
+]
 
 [tool.hatch.metadata]
 allow-direct-references = true
