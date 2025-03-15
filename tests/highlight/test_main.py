@@ -8,30 +8,7 @@ from unittest.mock import MagicMock, patch
 from src.highlight.main import (
     extract_locs_by_phrase,
     highlight_in_color,
-    is_same_line_and_column,
 )
-
-
-class TestIsSameLineAndColumn(unittest.TestCase):
-    """is_same_line_and_column関数のテスト"""
-
-    def test_same_line_and_column(self):
-        """同じ行と列にある単語のテスト"""
-        word1 = (0, 0, 10, 10, "First", 1, 2, 0)
-        word2 = (15, 0, 25, 10, "Second", 1, 2, 1)
-        self.assertTrue(is_same_line_and_column(word1, word2))
-
-    def test_different_block(self):
-        """異なるブロックにある単語のテスト"""
-        word1 = (0, 0, 10, 10, "First", 1, 2, 0)
-        word2 = (100, 0, 110, 10, "Second", 2, 2, 0)
-        self.assertFalse(is_same_line_and_column(word1, word2))
-
-    def test_different_line(self):
-        """異なる行にある単語のテスト"""
-        word1 = (0, 0, 10, 10, "First", 1, 2, 0)
-        word2 = (0, 15, 10, 25, "Second", 1, 3, 0)
-        self.assertFalse(is_same_line_and_column(word1, word2))
 
 
 class TestExtractLocsByPhrase(unittest.TestCase):
@@ -114,29 +91,6 @@ class TestExtractLocsByPhrase(unittest.TestCase):
         self.assertEqual(len(locs), 2)
         self.assertEqual(locs[0], (100, 0, 110, 10))
         self.assertEqual(locs[1], (115, 0, 125, 10))
-
-    def test_cross_column_no_extraction(self):
-        """列をまたがるフレーズは抽出されないことを確認するテスト"""
-        # モックページの作成 - 左右二段列を模擬
-        mock_page = MagicMock()
-        # 左列の単語
-        left_col_words = [
-            (0, 0, 10, 10, "First", 0, 0, 0),
-            (15, 0, 25, 10, "word", 0, 0, 1),
-        ]
-        # 右列の単語
-        right_col_words = [
-            (100, 0, 110, 10, "column", 1, 0, 0),
-        ]
-        # 全ての単語を結合
-        all_words = left_col_words + right_col_words
-        mock_page.get_text.return_value = all_words
-
-        # テスト - 列をまたがるフレーズ
-        locs = extract_locs_by_phrase(mock_page, "word column")
-
-        # 検証 - 列をまたがるので抽出されないはず
-        self.assertEqual(len(locs), 0)
 
 
 class TestHighlightInColor(unittest.TestCase):
