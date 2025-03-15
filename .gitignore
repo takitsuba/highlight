@@ -9,6 +9,12 @@ wheels/
 # venv
 .venv
 
+# Unit test / coverage reports
+.coverage
+.coverage.*
+htmlcov/
+reports/
+
 .idea/
 .vscode/
 data/
