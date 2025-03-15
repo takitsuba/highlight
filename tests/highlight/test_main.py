@@ -2,12 +2,18 @@
 main.pyのテスト
 """
 
+import json
+import os
+import tempfile
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 from src.highlight.main import (
     extract_locs_by_phrase,
+    get_color_phrases,
     highlight_in_color,
+    main,
+    process_pdf,
 )
 
 
@@ -92,6 +98,22 @@ class TestExtractLocsByPhrase(unittest.TestCase):
         self.assertEqual(locs[0], (100, 0, 110, 10))
         self.assertEqual(locs[1], (115, 0, 125, 10))
 
+    def test_phrase_not_found(self):
+        """フレーズが見つからない場合のテスト"""
+        # モックページの作成
+        mock_page = MagicMock()
+        mock_page.get_text.return_value = [
+            (0, 0, 10, 10, "First", 0, 0, 0),
+            (15, 0, 25, 10, "of", 0, 0, 1),
+            (30, 0, 40, 10, "all", 0, 0, 2),
+        ]
+
+        # テスト
+        locs = extract_locs_by_phrase(mock_page, "Not found")
+
+        # 検証 - 空のリストが返されるべき
+        self.assertEqual(len(locs), 0)
+
 
 class TestHighlightInColor(unittest.TestCase):
     """highlight_in_colorのテスト"""
@@ -114,6 +136,130 @@ class TestHighlightInColor(unittest.TestCase):
         mock_get_color.assert_called_once_with("RED")
         mock_highlight.set_colors.assert_called_once_with(stroke=(1, 0, 0))
         mock_highlight.update.assert_called_once()
+
+
+class TestGetColorPhrases(unittest.TestCase):
+    """get_color_phrasesのテスト"""
+
+    @patch(
+        "builtins.open",
+        new_callable=mock_open,
+        read_data='{"red": ["phrase1", "phrase2"], "blue": ["phrase3"]}',
+    )
+    @patch("os.path.join")
+    def test_get_color_phrases(self, mock_join, mock_file):
+        """色とフレーズのマッピングを取得するテスト"""
+        # モックの設定
+        mock_join.return_value = "/path/to/color_phrases.json"
+
+        # テスト
+        result = get_color_phrases()
+
+        # 検証
+        expected = {"red": ["phrase1", "phrase2"], "blue": ["phrase3"]}
+        self.assertEqual(result, expected)
+        mock_join.assert_called()
+        mock_file.assert_called_once_with("/path/to/color_phrases.json", "r")
+
+
+class TestProcessPDF(unittest.TestCase):
+    """process_pdfのテスト"""
+
+    @patch("src.highlight.main.fitz.open")
+    @patch("src.highlight.main.extract_locs_by_phrase")
+    @patch("src.highlight.main.highlight_in_color")
+    @patch("os.makedirs")
+    def test_process_pdf(self, mock_makedirs, mock_highlight, mock_extract, mock_open):
+        """PDFを処理するテスト"""
+        # モックの設定
+        mock_doc = MagicMock()
+        mock_page = MagicMock()
+        mock_doc.__iter__.return_value = [mock_page]
+        mock_open.return_value = mock_doc
+        mock_extract.return_value = [(0, 0, 10, 10)]
+        color_phrases = {"red": ["phrase1", "phrase2"], "blue": ["phrase3"]}
+
+        # テスト
+        process_pdf("input.pdf", "output.pdf", color_phrases)
+
+        # 検証
+        mock_open.assert_called_once_with("input.pdf")
+        self.assertEqual(
+            mock_extract.call_count, 3
+        )  # 3つのフレーズに対して呼び出されるべき
+        self.assertEqual(
+            mock_highlight.call_count, 3
+        )  # 3つのフレーズに対して呼び出されるべき
+        mock_makedirs.assert_called_once_with(
+            os.path.dirname("output.pdf"), exist_ok=True
+        )
+        mock_doc.save.assert_called_once_with("output.pdf")
+        mock_doc.close.assert_called_once()
+
+    @patch("src.highlight.main.fitz.open")
+    @patch("src.highlight.main.extract_locs_by_phrase")
+    @patch("src.highlight.main.highlight_in_color")
+    @patch("os.makedirs")
+    def test_process_pdf_no_phrases_found(
+        self, mock_makedirs, mock_highlight, mock_extract, mock_open
+    ):
+        """フレーズが見つからない場合のテスト"""
+        # モックの設定
+        mock_doc = MagicMock()
+        mock_page = MagicMock()
+        mock_doc.__iter__.return_value = [mock_page]
+        mock_open.return_value = mock_doc
+        mock_extract.return_value = []  # フレーズが見つからない
+        color_phrases = {"red": ["phrase1"]}
+
+        # テスト
+        process_pdf("input.pdf", "output.pdf", color_phrases)
+
+        # 検証
+        mock_open.assert_called_once_with("input.pdf")
+        mock_extract.assert_called_once()
+        mock_highlight.assert_not_called()  # フレーズが見つからないのでハイライトは呼び出されない
+        mock_makedirs.assert_called_once_with(
+            os.path.dirname("output.pdf"), exist_ok=True
+        )
+        mock_doc.save.assert_called_once_with("output.pdf")
+        mock_doc.close.assert_called_once()
+
+
+class TestMain(unittest.TestCase):
+    """mainのテスト"""
+
+    @patch("src.highlight.main.argparse.ArgumentParser")
+    @patch("src.highlight.main.get_color_phrases")
+    @patch("src.highlight.main.process_pdf")
+    @patch("os.path.basename")
+    @patch("os.path.join")
+    def test_main(
+        self, mock_join, mock_basename, mock_process, mock_get_color, mock_argparse
+    ):
+        """メイン関数のテスト"""
+        # モックの設定
+        mock_args = MagicMock()
+        mock_args.input_pdf = "/path/to/input.pdf"
+        mock_parser = MagicMock()
+        mock_parser.parse_args.return_value = mock_args
+        mock_argparse.return_value = mock_parser
+        mock_basename.return_value = "input.pdf"
+        mock_join.side_effect = lambda *args: "/".join(args)
+        mock_get_color.return_value = {"red": ["phrase1"]}
+
+        # テスト
+        main()
+
+        # 検証
+        mock_argparse.assert_called_once()
+        mock_parser.add_argument.assert_called_once_with(
+            "input_pdf", help="入力PDFのパス"
+        )
+        mock_parser.parse_args.assert_called_once()
+        mock_basename.assert_called_once_with("/path/to/input.pdf")
+        mock_get_color.assert_called_once()
+        mock_process.assert_called_once()
 
 
 if __name__ == "__main__":
