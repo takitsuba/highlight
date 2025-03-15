@@ -22,9 +22,7 @@ def get_color_phrases():
 
     Colors list is in `scripts/`
     """
-    color_phrases_path = os.path.join(
-        current_dir, "..", "..", "color_phrases.json"
-    )
+    color_phrases_path = os.path.join(current_dir, "..", "..", "color_phrases.json")
     with open(color_phrases_path, "r") as file:
         color_phrases = json.load(file)
 
