@@ -4,9 +4,9 @@ import json
 import os
 
 # Third Party Library
-import fitz
-from fitz.utils import getColor
-from tqdm import tqdm
+import fitz  # type: ignore
+from fitz.utils import getColor  # type: ignore
+from tqdm import tqdm  # type: ignore
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 data_dir = os.path.join(current_dir, "..", "..", "data")
